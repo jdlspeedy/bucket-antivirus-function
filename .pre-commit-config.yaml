@@ -1,17 +1,11 @@
 repos:
-
-  - repo: https://github.com/ambv/black
-    rev: 19.3b0
+  - repo: https://github.com/psf/black
+    rev: 22.8.0
     hooks:
       - id: black
-        language_version: python3.7
-        exclude: >
-          (?x)^(
-            scripts/gen-docs-index|
-          )$
 
-  - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
     hooks:
       - id: check-ast
       - id: check-json
@@ -21,17 +15,8 @@ repos:
       - id: debug-statements
       - id: detect-private-key
       - id: fix-encoding-pragma
-      - id: flake8
       - id: trailing-whitespace
-
-  - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.17.0
+  - repo: https://github.com/PyCQA/flake8
+    rev: 5.0.4
     hooks:
-      - id: markdownlint
-        entry: markdownlint --ignore .github/*.md
-
-  - repo: git://github.com/aws-cloudformation/cfn-python-lint
-    rev: v0.49.0
-    hooks:
-      - id: cfn-python-lint
-        files: deploy/
+      - id: flake8
