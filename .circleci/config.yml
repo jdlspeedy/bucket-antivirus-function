@@ -82,7 +82,7 @@ workflows:
             - pre-commit-deps
       - build:
           context:
-            - aws
+            - AWS
           requires:
             - pre-commit-test
             - check-latest-version
