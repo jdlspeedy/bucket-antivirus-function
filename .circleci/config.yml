@@ -1,93 +1,88 @@
- version: 2.1
- 
- # Shared workspace for passing env variables between jobs
- defaults: &defaults
-   working_directory: /tmp/ci-test
- 
- # Build executor is used for making the arm64 clamav zip, version-check is to compare latest version before make zip
- executors:
-   build:
-     resource_class: arm.medium
-     machine:
-       image: ubuntu-2004:current
- 
-   version-check:
-     docker:
-       - image: amazonlinux:2
- 
- # Setup for assume role with open ID and running CLI commands
- orbs:
-   aws-cli: circleci/aws-cli@3.1
- 
- jobs:
-   # Check latest version and pass env var to workspace
-   check-latest-version:
-     <<: *defaults
-     executor: version-check
-     steps:
-       - run: mkdir -p workspace
-       - run: |
-           yum update -y
-           yum install tar -y && yum install gzip -y
-           yum makecache fast
-           echo CLAMAV_LATEST=$(yum info clamav-update | grep Version | awk -F':' '{ print $2 }' | tail -n1 | tr -d '[:space:]') >> workspace/new-env-vars
-           cat workspace/new-env-vars
-       - run:
-           name: Add env vars to workspace
-           command: cat workspace/new-env-vars >> $BASH_ENV
-       - persist_to_workspace:
-           root: /tmp/ci-test/workspace
-           paths:
-             - new-env-vars
-   build:
-     <<: *defaults
-     executor: build
-     environment:
-       AWS_DEFAULT_REGION: us-east-1
-     steps:
-       - attach_workspace:
-           at: /tmp/ci-test/workspace
-       - run: ls -lah
-       - run: ls -lah workspace/
-       - run: cat workspace/new-env-vars >> $BASH_ENV
- 
-       - checkout
-       - aws-cli/setup:
-           role-arn: $CIRCLECI_ROLE_ARN
-       - run:
-           name: "make zip"
-           command: make all
-       - run:
-           name: copy zip file
-           command: aws s3 cp ./build/lambda.zip s3://jdl-circleci/lambda-${CLAMAV_LATEST}.zip
- 
-   pre-commit-deps:
-     executor: build
-     steps:
-       - checkout
-       - run: pip3 install pre-commit
-       - run: pre-commit install-hooks
- 
-   pre-commit-test:
-     executor: build
-     steps:
-       - checkout
-       - run: pip3 install pre-commit
-       - run:
-           name: Run pre-commit tests
-           command: pre-commit run --all-files
- 
- workflows:
-   version: 2
-   make-sync-zip:
-     jobs:
-       - check-latest-version
-       - pre-commit-deps
-       - pre-commit-test:
-           requires:
-             - pre-commit-deps
-       - build:
-           context:
-             - aws
-           requires:
-             - pre-commit-test
+version: 2.1
+
+# Shared workspace for passing env variables between jobs
+defaults: &defaults
+  working_directory: /tmp/ci-test
+
+# Build executor is used for making the arm64 clamav zip, version-check is to compare latest version before make zip
+executors:
+  build:
+    resource_class: arm.medium
+    machine:
+      image: ubuntu-2004:current
+
+  version-check:
+    docker:
+      - image: amazonlinux:2
+
+# Setup for assume role with open ID and running CLI commands
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+
+jobs:
+  # Check latest version and pass env var to workspace
+  check-latest-version:
+    <<: *defaults
+    executor: version-check
+    steps:
+      - run: mkdir -p workspace
+      - run: |
+          yum update -y
+          yum install tar -y && yum install gzip -y
+          yum makecache fast
+          echo CLAMAV_LATEST=$(yum info clamav-update | grep Version | awk -F':' '{ print $2 }' | tail -n1 | tr -d '[:space:]') >> workspace/clamav-latest
+
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - clamav-latest
+  build:
+    <<: *defaults
+    executor: build
+    environment:
+      AWS_DEFAULT_REGION: us-east-1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/ci-test/workspace
+      - run: cat workspace/clamav-latest >> $BASH_ENV
+      - aws-cli/setup:
+          role-arn: $CIRCLECI_ROLE_ARN
+      - run:
+          name: "make zip"
+          command: make all
+      - run:
+          name: copy zip file
+          command: aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
+
+  pre-commit-deps:
+    executor: build
+    steps:
+      - checkout
+      - run: pip3 install pre-commit
+      - run: pre-commit install-hooks
+
+  pre-commit-test:
+    executor: build
+    steps:
+      - checkout
+      - run: pip3 install pre-commit
+      - run:
+          name: Run pre-commit tests
+          command: pre-commit run --all-files
+
+workflows:
+  version: 2
+  make-sync-zip:
+    jobs:
+      - check-latest-version
+      - pre-commit-deps
+      - pre-commit-test:
+          requires:
+            - pre-commit-deps
+      - build:
+          context:
+            - aws
+          requires:
+            - pre-commit-test
+            - check-latest-version
