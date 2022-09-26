@@ -55,14 +55,22 @@ jobs:
            if [[ $? == 0 ]]; then
               set -e
               echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
-              exit 1
+              echo "BUILD=0" >> $BASH_ENV
+           else
+              echo "BUILD=1" >> $BASH_ENV  
            fi
       - run:
           name: "make zip"
-          command: make all
+          command: |
+            if [[ $BUILD == 1 ]]; then
+              make all
+            fi
       - run:
           name: copy zip file
-          command: aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
+          command: |
+            if [[ $BUILD == 1 ]]; then
+              aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
+            fi
 
   pre-commit-deps:
     executor: build
