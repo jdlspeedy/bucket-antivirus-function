@@ -54,11 +54,15 @@ jobs:
            aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
            if [[ $? == 0 ]]; then
               echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
-              exit 1
+              BUILD=0
+           else
+              BUILD=1
            fi
       - run:
           name: "make zip"
-          command: make all
+          command: |
+            echo "> Build: $BUILD"
+            make all
       - run:
           name: copy zip file
           command: aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
