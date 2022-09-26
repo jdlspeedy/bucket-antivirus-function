@@ -61,7 +61,7 @@ jobs:
           command: make all
       - run:
           name: copy zip file
-          command: aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
+          command: aws s3 cp s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
 
   pre-commit-deps:
     executor: build
