@@ -54,8 +54,8 @@ jobs:
       - run:
           name: copy zip file
           command: |
-           ret=$( aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip )
-           if [[ $ret != 0 ]]; then
+           aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
+           if [[ $? != 0 ]]; then
               echo "File 'lambda-$CLAMAV_LATEST.zip' not found, pushing new version"
               aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
            else
