@@ -53,11 +53,10 @@ jobs:
           command: |
            aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
            if [[ $? == 0 ]]; then
-              set -e
               echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
               echo "BUILD=0" >> $BASH_ENV
            else
-              echo "BUILD=1" >> $BASH_ENV  
+              echo "BUILD=1" >> $BASH_ENV
            fi
       - run:
           name: "make zip"
