@@ -51,14 +51,16 @@ jobs:
       - run:
           name: "Verify clamav version"
           command: |
-           aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
-           if [[ $? == 0 ]]; then
-              echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
-              echo "BUILD=0" >> $BASH_ENV
-           else
-              echo "File for '$CLAMAV_LATEST' doesn't exists, building"
-              echo "BUILD=1" >> $BASH_ENV
-           fi
+           echo "Building $CLAMAV_LATEST"
+           BUILD=1
+           #aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
+           #if [[ $? == 0 ]]; then
+           #   echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
+           #   echo "BUILD=0" >> $BASH_ENV
+           #else
+           #   echo "File for '$CLAMAV_LATEST' doesn't exists, building"
+           #   echo "BUILD=1" >> $BASH_ENV
+           #fi
       - run:
           name: "make zip"
           command: |
