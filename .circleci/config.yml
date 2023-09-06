@@ -7,7 +7,7 @@ defaults: &defaults
 # Build executor is used for making the arm64 clamav zip, version-check is to compare latest version before make zip
 executors:
   build:
-    resource_class: arm.medium
+    #resource_class: arm.medium
     machine:
       image: ubuntu-2004:current
 
