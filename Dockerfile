@@ -14,7 +14,8 @@ COPY requirements.txt /opt/app/requirements.txt
 RUN yum update -y
 RUN yum install -y cpio python3-pip yum-utils zip unzip less
 RUN yum install -y amazon-linux-extras
-RUN amazon-linux-extras install -y epel
+RUN yum-config-manager --add-repo=https://jdl-circleci.s3.amazonaws.com/clamav/pub/repos/clamav.repo
+RUN yum makecache
 
 # This had --no-cache-dir, tracing through multiple tickets led to a problem in wheel
 RUN pip3 install -r requirements.txt
@@ -22,8 +23,9 @@ RUN rm -rf /root/.cache/pip
 
 # Download libraries we need to run in lambda
 WORKDIR /tmp
-RUN yumdownloader --archlist=aarch64 clamav clamav-lib clamav-update json-c pcre2 libprelude gnutls nettle \
+RUN yumdownloader --archlist=x86_64 json-c pcre2 libprelude gnutls nettle \
 libtool-ltdl libxml2 xz-libs binutils libcurl libtool-ltdl libnghttp2 libidn2 libssh2
+RUN yumdownloader --archlist=x86_64 --disablerepo=* --enablerepo=clamav clamav clamav-lib clamav-update
 
 RUN rpm2cpio clamav-0*.rpm | cpio -idmv
 RUN rpm2cpio clamav-lib*.rpm | cpio -idmv
