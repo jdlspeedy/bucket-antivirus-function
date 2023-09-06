@@ -52,7 +52,7 @@ jobs:
           name: "Verify clamav version"
           command: |
            echo "Building $CLAMAV_LATEST"
-           BUILD=1
+           #BUILD=1
            #aws s3 ls s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
            #if [[ $? == 0 ]]; then
            #   echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
@@ -64,15 +64,15 @@ jobs:
       - run:
           name: "make zip"
           command: |
-            if [[ $BUILD == 1 ]]; then
+            #if [[ $BUILD == 1 ]]; then
               make all
-            fi
+            #fi
       - run:
           name: copy zip file
           command: |
-            if [[ $BUILD == 1 ]]; then
-              aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/lambda-$CLAMAV_LATEST.zip
-            fi
+            #if [[ $BUILD == 1 ]]; then
+              aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/pkg/lambda-$CLAMAV_LATEST.zip
+            #fi
 
   pre-commit-deps:
     executor: build
