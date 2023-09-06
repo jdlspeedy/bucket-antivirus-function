@@ -56,6 +56,7 @@ jobs:
               echo "File 'lambda-$CLAMAV_LATEST.zip' exists, exiting"
               echo "BUILD=0" >> $BASH_ENV
            else
+              echo "File for '$CLAMAV_LATEST' doesn't exists, building"
               echo "BUILD=1" >> $BASH_ENV
            fi
       - run:
