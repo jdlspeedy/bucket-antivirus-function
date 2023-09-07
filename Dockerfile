@@ -12,7 +12,7 @@ COPY requirements.txt /opt/app/requirements.txt
 
 # Install packages
 RUN yum update -y
-RUN yum install -y cpio python3-pip yum-utils zip unzip less
+RUN yum install -y cpio python3-pip yum-utils zip unzip less wget
 RUN yum install -y amazon-linux-extras
 RUN yum-config-manager --add-repo=https://jdl-circleci.s3.amazonaws.com/clamav/pub/repos/clamav.repo
 RUN yum makecache
@@ -56,6 +56,12 @@ RUN rpm2cpio libidn2* | cpio -idmv
 RUN rpm2cpio libssh2* | cpio -idmv
 RUN rpm2cpio binutils* | cpio -idmv
 
+# Build libprelude
+RUN PATH="/usr/local/bin/:$PATH" \
+	wget https://www.prelude-siem.org/attachments/download/1395/libprelude-5.2.0.tar.gz ; \
+	tar zxf libprelude-5.2.0.tar.gz ; cd libprelude-5.2.0 ; \
+ 	./configure ; make ; make install
+
 # Copy over the binaries and libraries
 RUN cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /tmp/usr/bin/ld.bfd /opt/app/bin/
 RUN cp /usr/lib64/libldap-2.4.so.2 \
@@ -67,6 +73,8 @@ RUN cp /usr/lib64/libldap-2.4.so.2 \
     /usr/lib64/libnss3.so \
     /usr/lib64/libcrypt.so.1 \
     /opt/app/bin/
+
+RUN cp $(find /usr/local/lib -name "libprelude*") /opt/app/bin/
 
 # Fix the freshclam.conf settings
 RUN echo "DatabaseMirror database.clamav.net" > /opt/app/bin/freshclam.conf
