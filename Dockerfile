@@ -12,6 +12,12 @@ COPY requirements.txt /opt/app/requirements.txt
 
 # Install packages
 RUN yum update -y
+RUN yum install -y autoconf automake gettext-devel libtool libtool-ltdl-devel make \
+	gcc-c++ bzip2-devel curl-devel gmp-devel json-c-devel libprelude-devel gnutls-devel \
+	pcre-devel libxml2-devel ncurses-devel openssl-devel pcre2-devel zlib-devel bc tcl groff \
+	graphviz ocaml nc systemd-devel sendmail-devel rpmbuild rpmdevtools shadow-utils \
+	util-linux systemd-devel bzip2-devel check-devel json-c-devel libcurl-devel libxml2-devel \
+	ncurses-devel openssl-devel pcre2-devel zlib-devel createrepo bind-utils yum-utils unzip wget nano
 RUN yum install -y cpio python3-pip yum-utils zip unzip less wget
 RUN yum install -y amazon-linux-extras
 RUN yum-config-manager --add-repo=https://jdl-circleci.s3.amazonaws.com/clamav/pub/repos/clamav.repo
