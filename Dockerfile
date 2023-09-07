@@ -23,9 +23,15 @@ RUN rm -rf /root/.cache/pip
 
 # Download libraries we need to run in lambda
 WORKDIR /tmp
-RUN yumdownloader -x '*i686' --archlist=x86_64 json-c pcre2 libprelude gnutls nettle \
-libtool-ltdl libxml2 xz-libs binutils libcurl libtool-ltdl libnghttp2 libidn2 libssh2
-RUN yumdownloader -x '*i686' --archlist=x86_64 --disablerepo=* --enablerepo=clamav clamav clamav-lib clamav-update
+
+RUN for pkg in json-c pcre2 libprelude gnutls nettle libtool-ltdl libxml2 xz-libs binutils libcurl \
+  libtool-ltdl libnghttp2 libidn2 libssh2 ; do \
+    yum info $pkg ; yumdownloader -x '*i686' --archlist=x86_64 $pkg ; echo "====" \
+  done
+
+RUN for pkg in clamav clamav-lib clamav-update ; do \
+    yum info --disablerepo=* --enablerepo=clamav $pkg ; yumdownloader -x '*i686' --archlist=x86_64 --disablerepo=* --enablerepo=clamav $pkg ; echo "====" \
+  done
 
 RUN rpm2cpio clamav-0*.rpm | cpio -idmv
 RUN rpm2cpio clamav-lib*.rpm | cpio -idmv
