@@ -27,6 +27,9 @@ from common import get_timestamp
 
 
 def lambda_handler(event, context):
+    log = open("/etc/os-release", "r").read()
+    print(log)
+    
     s3 = boto3.resource("s3", endpoint_url=S3_ENDPOINT)
     s3_client = boto3.client("s3", endpoint_url=S3_ENDPOINT)
 
