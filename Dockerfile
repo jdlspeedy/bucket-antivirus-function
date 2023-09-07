@@ -78,6 +78,7 @@ RUN cp /usr/lib64/libldap-2.4.so.2 \
     /usr/lib64/libsmime3.so \
     /usr/lib64/libnss3.so \
     /usr/lib64/libcrypt.so.1 \
+    /usr/lib64/libpcre.so.1 \
     /opt/app/bin/
 
 RUN cp $(find /usr/local/lib -name "libprelude*") /opt/app/bin/
