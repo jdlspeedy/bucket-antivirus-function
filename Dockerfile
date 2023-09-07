@@ -26,13 +26,17 @@ WORKDIR /tmp
 
 RUN for pkg in json-c pcre2 libprelude gnutls nettle libtool-ltdl libxml2 xz-libs binutils libcurl \
   libtool-ltdl libnghttp2 libidn2 libssh2 ; do \
+    echo "== $pkg" ; \
     yum info $pkg ; \
-    yumdownloader -x '*i686' --archlist=x86_64 $pkg ; echo "====" ; \
+    yumdownloader -x '*i686' --archlist=x86_64 $pkg ; \
+    echo "====" ; \
   done
 
 RUN for pkg in clamav clamav-lib clamav-update ; do \
+    echo "== $pkg" ; \
     yum info --disablerepo=* --enablerepo=clamav $pkg ; \
-    yumdownloader -x '*i686' --archlist=x86_64 --disablerepo=* --enablerepo=clamav $pkg ; echo "====" ; \
+    yumdownloader -x '*i686' --archlist=x86_64 --disablerepo=* --enablerepo=clamav $pkg ; \
+    echo "====" ; \
   done
 
 RUN rpm2cpio clamav-0*.rpm | cpio -idmv
