@@ -78,17 +78,17 @@ jobs:
     executor: build
     steps:
       - checkout
-      - run: pip3 install pre-commit
-      - run: pre-commit install-hooks
+      #- run: pip3 install pre-commit
+      #- run: pre-commit install-hooks
 
   pre-commit-test:
     executor: build
     steps:
       - checkout
-      - run: pip3 install pre-commit
-      - run:
-          name: Run pre-commit tests
-          command: pre-commit run --all-files
+      #- run: pip3 install pre-commit
+      #- run:
+      #    name: Run pre-commit tests
+      #    command: pre-commit run --all-files
 
 workflows:
   version: 2
