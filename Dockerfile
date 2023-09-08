@@ -12,38 +12,21 @@ COPY requirements.txt /opt/app/requirements.txt
 
 # Install packages
 RUN yum update -y
-RUN yum install -y autoconf automake gettext-devel libtool libtool-ltdl-devel make \
-	gcc-c++ bzip2-devel curl-devel gmp-devel json-c-devel libprelude-devel gnutls-devel \
-	pcre-devel libxml2-devel ncurses-devel openssl-devel pcre2-devel zlib-devel bc tcl groff \
-	graphviz ocaml nc systemd-devel sendmail-devel rpmbuild rpmdevtools shadow-utils \
-	util-linux systemd-devel bzip2-devel check-devel json-c-devel libcurl-devel libxml2-devel \
-	ncurses-devel openssl-devel pcre2-devel zlib-devel createrepo bind-utils yum-utils unzip wget nano
-RUN yum install -y cpio python3-pip yum-utils zip unzip less wget
+RUN yum install -y cpio python3-pip yum-utils zip unzip less
+RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
 RUN yum install -y amazon-linux-extras
-RUN yum-config-manager --add-repo=https://jdl-circleci.s3.amazonaws.com/clamav/pub/repos/clamav.repo
-RUN yum makecache
+RUN amazon-linux-extras enable python3.8
+RUN yum -y install python3.8
 
 # This had --no-cache-dir, tracing through multiple tickets led to a problem in wheel
-RUN pip3 install -r requirements.txt
+RUN python3.8 -m pip install -r 
 RUN rm -rf /root/.cache/pip
 
 # Download libraries we need to run in lambda
 WORKDIR /tmp
-
-RUN for pkg in json-c pcre2 libprelude gnutls nettle libtool-ltdl libxml2 xz-libs binutils libcurl \
-  libtool-ltdl libnghttp2 libidn2 libssh2 ; do \
-    echo "== $pkg" ; \
-    yum info $pkg ; \
-    yumdownloader -x '*i686' --archlist=x86_64 $pkg ; \
-    echo "====" ; \
-  done
-
-RUN for pkg in clamav clamav-lib clamav-update ; do \
-    echo "== $pkg" ; \
-    yum info --disablerepo=* --enablerepo=clamav $pkg ; \
-    yumdownloader -x '*i686' --archlist=x86_64 --disablerepo=* --enablerepo=clamav $pkg ; \
-    echo "====" ; \
-  done
+RUN yumdownloader -x \*i686 --archlist=x86_64 clamav clamav-lib clamav-update json-c pcre2 libprelude gnutls libtasn1 lib64nettle nettle \
+  bzip2-libs libtool-ltdl libxml2 xz-libs
 
 RUN rpm2cpio clamav-0*.rpm | cpio -idmv
 RUN rpm2cpio clamav-lib*.rpm | cpio -idmv
@@ -54,35 +37,14 @@ RUN rpm2cpio gnutls* | cpio -idmv
 RUN rpm2cpio nettle* | cpio -idmv
 RUN rpm2cpio lib* | cpio -idmv
 RUN rpm2cpio *.rpm | cpio -idmv
-RUN rpm2cpio xz-libs* | cpio -idmv
-RUN rpm2cpio libtool* | cpio -idmv
-RUN rpm2cpio libxml2* | cpio -idmv
-RUN rpm2cpio libnghttp2* | cpio -idmv
-RUN rpm2cpio libidn2* | cpio -idmv
-RUN rpm2cpio libssh2* | cpio -idmv
-RUN rpm2cpio binutils* | cpio -idmv
-
-# Build libprelude
-RUN PATH="/usr/local/bin/:$PATH" \
-	wget https://www.prelude-siem.org/attachments/download/1395/libprelude-5.2.0.tar.gz ; \
-	tar zxf libprelude-5.2.0.tar.gz ; cd libprelude-5.2.0 ; \
- 	./configure ; make ; make install
+RUN rpm2cpio libtasn1* | cpio -idmv
+RUN rpm2cpio bzip2-libs*.rpm | cpio -idmv
+RUN rpm2cpio libtool-ltdl*.rpm | cpio -idmv
+RUN rpm2cpio libxml2*.rpm | cpio -idmv
+RUN rpm2cpio xz-libs*.rpm | cpio -idmv
 
 # Copy over the binaries and libraries
-RUN cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /tmp/usr/bin/ld.bfd /opt/app/bin/
-RUN cp /usr/lib64/libldap-2.4.so.2 \
-    /usr/lib64/libunistring.so.0 \
-    /usr/lib64/libsasl2.so.3 \
-    /usr/lib64/liblber-2.4.so.2 \
-    /usr/lib64/libssl3.so \
-    /usr/lib64/libsmime3.so \
-    /usr/lib64/libnss3.so \
-    /usr/lib64/libcrypt.so.1 \
-    /usr/lib64/libpcre.so.1 \
-    /usr/lib64/libtasn1.so.6 \
-    /opt/app/bin/
-
-RUN cp $(find /usr/local/lib -name "libprelude*") /opt/app/bin/
+RUN cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /opt/app/bin/
 
 # Fix the freshclam.conf settings
 RUN echo "DatabaseMirror database.clamav.net" > /opt/app/bin/freshclam.conf
@@ -92,7 +54,7 @@ RUN echo "CompressLocalDatabase yes" >> /opt/app/bin/freshclam.conf
 WORKDIR /opt/app
 RUN zip -r9 --exclude="*test*" /opt/app/build/lambda.zip *.py bin
 
-WORKDIR /usr/local/lib/python3.7/site-packages
+WORKDIR /usr/local/lib/python3.8/site-packages
 RUN zip -r9 /opt/app/build/lambda.zip *
 
 WORKDIR /opt/app
