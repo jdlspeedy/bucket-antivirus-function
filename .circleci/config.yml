@@ -74,21 +74,21 @@ jobs:
               aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/pkg/lambda-$CLAMAV_LATEST.zip
             #fi
 
-  pre-commit-deps:
-    executor: build
-    steps:
-      - checkout
-      #- run: pip3 install pre-commit
-      #- run: pre-commit install-hooks
+  #pre-commit-deps:
+  #  executor: build
+  #  steps:
+  #    - checkout
+  #    - run: pip3 install pre-commit
+  #    - run: pre-commit install-hooks
 
-  pre-commit-test:
-    executor: build
-    steps:
-      - checkout
-      #- run: pip3 install pre-commit
-      #- run:
-      #    name: Run pre-commit tests
-      #    command: pre-commit run --all-files
+  #pre-commit-test:
+  #  executor: build
+  #  steps:
+  #    - checkout
+  #    - run: pip3 install pre-commit
+  #    - run:
+  #        name: Run pre-commit tests
+  #        command: pre-commit run --all-files
 
 workflows:
   version: 2
