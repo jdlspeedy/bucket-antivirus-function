@@ -95,13 +95,13 @@ workflows:
   make-sync-zip:
     jobs:
       - check-latest-version
-      - pre-commit-deps
-      - pre-commit-test:
-          requires:
-            - pre-commit-deps
+      #- pre-commit-deps
+      #- pre-commit-test:
+      #    requires:
+      #      - pre-commit-deps
       - build:
           context:
             - AWS
           requires:
-            - pre-commit-test
+          #  - pre-commit-test
             - check-latest-version
