@@ -20,7 +20,7 @@ RUN amazon-linux-extras enable python3.8
 RUN yum -y install python3.8
 
 # This had --no-cache-dir, tracing through multiple tickets led to a problem in wheel
-RUN python3.8 -m pip install -r 
+RUN python3.8 -m pip install -r requirements.txt
 RUN rm -rf /root/.cache/pip
 
 # Download libraries we need to run in lambda
