@@ -38,13 +38,11 @@ def lambda_handler(event, context):
     log = open("/etc/os-release", "r").read()
     print(log)
 
-    ld_verbose = subprocess.check_output(["/usr/bin/cat", "/etc/ld.so.cache"]).decode("utf-8")
-    rd_ld = re.compile(RE_SEARCH_DIR)
-    print( rd_ld.findall(ld_verbose) )
+    ld_verbose = subprocess.check_output(["/usr/bin/cat", "/etc/ld.so.cache"])
+    print( ld_verbose )
 
-    ld_verbose = subprocess.check_output(["/usr/sbin/ldconfig", "--verbose"]).decode("utf-8")
-    rd_ld = re.compile(RE_SEARCH_DIR)
-    print( rd_ld.findall(ld_verbose) )
+    ld_verbose = subprocess.check_output(["/usr/sbin/ldconfig", "--verbose"])
+    print( ld_verbose )
     
     s3 = boto3.resource("s3", endpoint_url=S3_ENDPOINT)
     s3_client = boto3.client("s3", endpoint_url=S3_ENDPOINT)
