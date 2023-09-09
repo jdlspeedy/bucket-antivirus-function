@@ -38,7 +38,7 @@ def lambda_handler(event, context):
     log = open("/etc/os-release", "r").read()
     print(log)
 
-    ld_verbose = subprocess.check_output(["ldconfig", "--verbose"]).decode("utf-8")
+    ld_verbose = subprocess.check_output(["/usr/sbin/ldconfig", "--verbose"]).decode("utf-8")
     rd_ld = re.compile(RE_SEARCH_DIR)
     print( rd_ld.findall(ld_verbose) )
     
