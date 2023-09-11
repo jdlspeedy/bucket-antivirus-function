@@ -19,6 +19,9 @@ RUN yum install -y amazon-linux-extras
 RUN amazon-linux-extras enable python3.8
 RUN yum -y install python3.8
 
+RUN yum-config-manager --add-repo=https://jdl-circleci.s3.amazonaws.com/clamav/pub/repos/clamav.repo
+RUN yum makecache
+
 # This had --no-cache-dir, tracing through multiple tickets led to a problem in wheel
 RUN python3.8 -m pip install -r requirements.txt
 RUN rm -rf /root/.cache/pip
@@ -26,9 +29,13 @@ RUN rm -rf /root/.cache/pip
 # Download libraries we need to run in lambda
 WORKDIR /tmp
 #RUN yumdownloader -x \*i686 --archlist=x86_64,aarch64 \
+#RUN yumdownloader -x \*i686 --archlist=x86_64 \
+RUN yumdownloader --disablerepo=* --enablerepo=clamav \
+        clamav clamav-lib clamav-update
+
+#RUN yumdownloader -x \*i686 --archlist=x86_64,aarch64 \
 RUN yumdownloader -x \*i686 --archlist=x86_64 \
-        clamav clamav-lib clamav-update json-c  \
-        pcre2 libtool-ltdl libxml2 bzip2-libs \
+        json-c pcre2 libtool-ltdl libxml2 bzip2-libs \
         xz-libs libprelude gnutls nettle libcurl \
         libnghttp2 libidn2 libssh2 openldap \
         libunistring cyrus-sasl-lib nss pcre
