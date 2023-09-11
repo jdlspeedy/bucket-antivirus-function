@@ -25,27 +25,34 @@ RUN rm -rf /root/.cache/pip
 
 # Download libraries we need to run in lambda
 WORKDIR /tmp
-RUN yumdownloader -x \*i686 --archlist=x86_64 clamav clamav-lib clamav-update json-c pcre2 libprelude gnutls libtasn1 lib64nettle nettle \
-  bzip2-libs libtool-ltdl libxml2 xz-libs libcurl libnghttp2 libidn2 libssh2
+RUN yumdownloader -x \*i686 --archlist=x86_64,aarch64 \
+        clamav clamav-lib clamav-update \
+        pcre2 libtool-ltdl libxml2 bzip2-libs \
+        xz-libs libprelude gnutls nettle libcurl \
+        libnghttp2 libidn2 libssh2 openldap \
+        libunistring cyrus-sasl-lib nss pcre
 
 RUN rpm2cpio clamav-0*.rpm | cpio -idmv
 RUN rpm2cpio clamav-lib*.rpm | cpio -idmv
 RUN rpm2cpio clamav-update*.rpm | cpio -idmv
 RUN rpm2cpio json-c*.rpm | cpio -idmv
 RUN rpm2cpio pcre*.rpm | cpio -idmv
-RUN rpm2cpio gnutls* | cpio -idmv
-RUN rpm2cpio nettle* | cpio -idmv
-RUN rpm2cpio lib* | cpio -idmv
-RUN rpm2cpio *.rpm | cpio -idmv
-RUN rpm2cpio libtasn1* | cpio -idmv
-RUN rpm2cpio bzip2-libs*.rpm | cpio -idmv
 RUN rpm2cpio libtool-ltdl*.rpm | cpio -idmv
 RUN rpm2cpio libxml2*.rpm | cpio -idmv
+RUN rpm2cpio bzip2-libs*.rpm | cpio -idmv
 RUN rpm2cpio xz-libs*.rpm | cpio -idmv
+RUN rpm2cpio libprelude*.rpm | cpio -idmv
+RUN rpm2cpio gnutls*.rpm | cpio -idmv
+RUN rpm2cpio nettle*.rpm | cpio -idmv
 RUN rpm2cpio libcurl*.rpm | cpio -idmv
 RUN rpm2cpio libnghttp2*.rpm | cpio -idmv
 RUN rpm2cpio libidn2*.rpm | cpio -idmv
 RUN rpm2cpio libssh2*.rpm | cpio -idmv
+RUN rpm2cpio openldap*.rpm | cpio -idmv
+RUN rpm2cpio libunistring*.rpm | cpio -idmv
+RUN rpm2cpio cyrus-sasl-lib-2*.rpm | cpio -idmv
+RUN rpm2cpio nss*.rpm | cpio -idmv
+RUN rpm2cpio pcre*.rpm | cpio -idmv
 
 # Copy over the binaries and libraries
 RUN cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /opt/app/bin/
@@ -53,6 +60,9 @@ RUN cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /opt/app/bi
 # Fix the freshclam.conf settings
 RUN echo "DatabaseMirror database.clamav.net" > /opt/app/bin/freshclam.conf
 RUN echo "CompressLocalDatabase yes" >> /opt/app/bin/freshclam.conf
+
+ENV LD_LIBRARY_PATH=/opt/app/bin
+RUN ldconfig
 
 # Create the zip file
 WORKDIR /opt/app
