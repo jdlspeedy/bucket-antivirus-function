@@ -30,7 +30,7 @@ RUN rm -rf /root/.cache/pip
 WORKDIR /tmp
 #RUN yumdownloader -x \*i686 --archlist=x86_64,aarch64 \
 #RUN yumdownloader -x \*i686 --archlist=x86_64 \
-RUN yumdownloader --disablerepo=* --enablerepo=clamav \
+RUN yumdownloader -x \*i686 --archlist=x86_64 --disablerepo=* --enablerepo=clamav \
         clamav clamav-lib clamav-update
 
 #RUN yumdownloader -x \*i686 --archlist=x86_64,aarch64 \
