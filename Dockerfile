@@ -57,8 +57,10 @@ RUN rpm2cpio cyrus-sasl-lib-2*.rpm | cpio -idmv
 RUN rpm2cpio nss*.rpm | cpio -idmv
 RUN rpm2cpio pcre*.rpm | cpio -idmv
 
+RUN ls -lah /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /opt/app/bin/
+
 # Copy over the binaries and libraries
-RUN cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /opt/app/bin/
+RUN cp -rf /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* /opt/app/bin/
 
 # Fix the freshclam.conf settings
 RUN echo "DatabaseMirror database.clamav.net" > /opt/app/bin/freshclam.conf
