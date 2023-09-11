@@ -37,12 +37,6 @@ RE_SEARCH_DIR = r"SEARCH_DIR\(\"=([A-z0-9\/\-_]*)\"\)"
 def lambda_handler(event, context):
     log = open("/etc/os-release", "r").read()
     print(log)
-
-    ld_verbose = subprocess.check_output(["/usr/bin/cat", "/etc/ld.so.cache"])
-    print( ld_verbose )
-
-    ld_verbose = subprocess.check_output(["/usr/sbin/ldconfig", "--verbose"])
-    print( ld_verbose )
     
     s3 = boto3.resource("s3", endpoint_url=S3_ENDPOINT)
     s3_client = boto3.client("s3", endpoint_url=S3_ENDPOINT)
