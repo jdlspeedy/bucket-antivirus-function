@@ -38,7 +38,7 @@ RUN yumdownloader -x \*i686 --archlist=x86_64 \
         json-c pcre2 libtool-ltdl libxml2 bzip2-libs \
         xz-libs libprelude gnutls nettle libcurl \
         libnghttp2 libidn2 libssh2 openldap \
-        libunistring cyrus-sasl-lib nss pcre
+        libunistring cyrus-sasl-lib nss
 
 RUN ls -alh *.rpm
 
