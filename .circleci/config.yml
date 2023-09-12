@@ -28,8 +28,10 @@ jobs:
       - run: mkdir -p workspace
       - run: |
           yum update -y
-          yum install tar -y && yum install gzip -y
+          yum install -y tar gzip yum-utils
+          yum-config-manager --add-repo=https://jdl-circleci.s3.amazonaws.com/clamav/pub/repos/clamav.repo
           yum makecache fast
+          yum info clamav-update
           LATEST=$(yum info clamav-update | grep Version | awk -F':' '{ print $2 }' | tail -n1 | tr -d '[:space:]')
           echo "CLAMAV_LATEST=$LATEST" >> workspace/clamav-latest
           chmod 755 workspace/clamav-latest
