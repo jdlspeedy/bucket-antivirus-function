@@ -30,7 +30,8 @@ jobs:
           yum update -y
           yum install tar -y && yum install gzip -y
           yum makecache fast
-          CLAMAV_LATEST=$(yum info clamav-update | grep Version | awk -F':' '{ print $2 }' | tail -n1 | tr -d '[:space:]') >> workspace/clamav-latest
+          LATEST=$(yum info clamav-update | grep Version | awk -F':' '{ print $2 }' | tail -n1 | tr -d '[:space:]')
+          echo "CLAMAV_LATEST=$LATEST" >> workspace/clamav-latest
           chmod 755 workspace/clamav-latest
 
       - persist_to_workspace:
@@ -71,10 +72,11 @@ jobs:
       - run:
           name: copy zip file
           command: |
-            . workspace/clamav-latest
+            . ./workspace/clamav-latest
+            . ./clamav-latest
             
             #if [[ $BUILD == 1 ]]; then
-              aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/pkg/lambda-$CLAMAV_LATEST.zip
+              aws s3 cp ./build/lambda.zip s3://$S3_BUCKET/pkg/lambda-${CLAMAV_LATEST}.zip
             #fi
 
 workflows:
