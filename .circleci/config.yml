@@ -34,6 +34,9 @@ jobs:
           echo "CLAMAV_LATEST=$LATEST" >> workspace/clamav-latest
           chmod 755 workspace/clamav-latest
 
+          docker image ls
+          docker container ls
+
       - persist_to_workspace:
           root: workspace
           paths:
